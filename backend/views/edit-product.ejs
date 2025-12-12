@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Edit Product - <%= product.title %></title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+
+<body>
+
+  <!-- NAVBAR -->
+  <header class="navbar">
+    <a href="/products" class="nav-item">Home</a>
+    <a href="/admin" class="nav-item">Admin Dashboard</a>
+
+    <% if (session.userId) { %>
+      <span class="nav-item">Admin: <strong><%= session.userName %></strong></span>
+      <a href="/logout" class="nav-item logout-btn">Logout</a>
+    <% } else { %>
+      <a href="/admin-login" class="nav-item">Admin Login</a>
+    <% } %>
+  </header>
+
+  <main class="container">
+
+    <h1>Edit Product</h1>
+
+    <div class="admin-section">
+
+      <form action="/admin/edit/<%= product.id %>" method="POST" enctype="multipart/form-data" class="admin-form">
+
+        <!-- TITLE -->
+        <label>Product Title</label>
+        <input type="text" name="title" value="<%= product.title %>" required />
+
+        <!-- DESCRIPTION -->
+        <label>Description</label>
+        <textarea name="description"><%= product.description %></textarea>
+
+        <!-- STARTING PRICE -->
+        <label>Starting Price (₹)</label>
+        <input
+          type="number"
+          name="starting_price"
+          step="0.01"
+          value="<%= product.starting_price %>"
+          required
+        />
+
+        <!-- AUCTION END -->
+        <label>Auction End Time</label>
+        <input
+          type="datetime-local"
+          name="auction_end"
+          value="<%= product.auction_end ? new Date(product.auction_end).toISOString().slice(0,16) : '' %>"
+        />
+
+        <!-- CURRENT IMAGE -->
+        <label>Current Image</label>
+
+        <% if (product.image_url) { %>
+          <img src="<%= product.image_url %>" class="edit-thumb" />
+        <% } else { %>
+          <p class="small-text">No image uploaded yet.</p>
+        <% } %>
+
+        <!-- UPLOAD NEW IMAGE -->
+        <label>Change Image (optional)</label>
+        <input type="file" name="image" accept="image/*" />
+
+        <!-- SUBMIT -->
+        <button type="submit" class="admin-btn">Save Changes</button>
+
+      </form>
+
+      <p>
+        <a href="/admin" class="back-link">← Return to Dashboard</a>
+      </p>
+
+    </div>
+
+  </main>
+
+</body>
+</html>

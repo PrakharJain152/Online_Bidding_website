@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>User Dashboard</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+
+<body>
+
+  <!-- NAVBAR -->
+  <header class="navbar">
+    <a href="/products" class="nav-item">Home</a>
+
+    <% if (session.userId) { %>
+      <span class="nav-item">Welcome, <strong><%= session.userName %></strong></span>
+      <a href="/logout" class="nav-item logout-btn">Logout</a>
+    <% } else { %>
+      <a href="/login" class="nav-item">Login</a>
+    <% } %>
+  </header>
+
+  <main class="container">
+
+    <h1>Your Dashboard</h1>
+
+    <!-- TOTAL BIDS -->
+    <div class="stats-card">
+      <h2>Total Bids Placed</h2>
+      <p class="stat-number"><%= total %></p>
+    </div>
+
+    <hr />
+
+    <!-- BID HISTORY -->
+    <h2>Your Bid History</h2>
+
+    <% if (bids.length === 0) { %>
+      <p>You haven't placed any bids yet.</p>
+    <% } else { %>
+
+      <ul class="bid-list">
+        <% bids.forEach(bid => { %>
+          <li class="bid-item">
+            <a href="/product/<%= bid.product_id %>" class="product-link">
+              <strong><%= bid.title %></strong>
+            </a>
+            —
+            ₹<%= bid.bid_amount %>
+            <span class="date">
+              on <%= new Date(bid.created_at).toLocaleString() %>
+            </span>
+          </li>
+        <% }) %>
+      </ul>
+
+    <% } %>
+
+  </main>
+
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+
+<body>
+
+  <!-- NAVBAR -->
+  <header class="navbar">
+    <a href="/products" class="nav-item">Home</a>
+
+    <% if (session.userId) { %>
+      <span class="nav-item">
+        Admin: <strong><%= session.userName %></strong>
+      </span>
+      <a href="/logout" class="nav-item logout-btn">Logout</a>
+    <% } else { %>
+      <a href="/admin-login" class="nav-item">Admin Login</a>
+    <% } %>
+  </header>
+
+  <main class="container">
+
+    <h1>Admin Dashboard</h1>
+
+    <!-- ADD PRODUCT FORM -->
+    <section class="admin-section">
+      <h2>Add New Product</h2>
+
+      <form action="/admin/add-product" method="POST" enctype="multipart/form-data" class="admin-form">
+
+        <label>Product Title</label>
+        <input type="text" name="title" required />
+
+        <label>Description</label>
+        <textarea name="description"></textarea>
+
+        <label>Starting Price (₹)</label>
+        <input type="number" name="starting_price" step="0.01" required />
+
+        <label>Auction End Time</label>
+        <input type="datetime-local" name="auction_end" />
+
+        <label>Product Image</label>
+        <input type="file" name="image" accept="image/*" />
+
+        <button type="submit" class="admin-btn">Add Product</button>
+      </form>
+    </section>
+
+    <hr />
+
+    <!-- EXISTING PRODUCTS LIST -->
+    <section class="admin-section">
+      <h2>Existing Products</h2>
+
+      <% if (products.length === 0) { %>
+        <p>No products created yet.</p>
+      <% } else { %>
+
+        <div class="product-table">
+          <% products.forEach(product => { %>
+            <div class="product-row">
+
+              <div class="product-info">
+                <h3><%= product.title %></h3>
+
+                <% if (product.image_url) { %>
+                  <img src="<%= product.image_url %>" class="admin-thumb" />
+                <% } %>
+
+                <p>Current Price: <strong>₹<%= product.current_price %></strong></p>
+
+                <% if (product.auction_end) { %>
+                  <p class="small-text">
+                    Ends: <%= new Date(product.auction_end).toLocaleString() %>
+                  </p>
+                <% } else { %>
+                  <p class="small-text">No end-time set.</p>
+                <% } %>
+
+                <% if (product.winner_id) { %>
+                  <p class="winner-label">Winner Selected</p>
+                <% } %>
+              </div>
+
+              <div class="product-actions">
+
+                <a href="/admin/edit/<%= product.id %>" class="edit-btn">
+                  Edit
+                </a>
+
+                <form action="/admin/delete/<%= product.id %>" method="POST">
+                  <button type="submit" class="delete-btn">Delete</button>
+                </form>
+
+                <a href="/product/<%= product.id %>" class="view-btn">
+                  View Page
+                </a>
+
+              </div>
+
+            </div>
+          <% }) %>
+        </div>
+
+      <% } %>
+    </section>
+
+  </main>
+
+</body>
+</html>

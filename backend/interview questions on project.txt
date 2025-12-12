@@ -1,0 +1,400 @@
+1. Can you briefly explain your online bidding system project?
+
+Answer:
+This is a full-stack web application where users can sign up, log in, and place bids on products.
+Admins can add, edit, or delete products and upload images. The project includes:
+
+Frontend: HTML/CSS/JS + React SPA
+
+Backend: Node.js + Express
+
+Database: MySQL
+
+Authentication: express-session
+
+Image Uploads: Multer
+
+Cron Jobs: Automatically select auction winners after auction end-time
+
+User Dashboard: Shows total bids and bid history
+
+The system fully supports authentication, file uploads, REST APIs, bidding logic, and real-time price updates on bid.
+
+✅ 2. What technologies did you use and why?
+
+Answer:
+
+Node.js + Express → Lightweight, great for REST APIs, easy async DB queries.
+
+MySQL → Perfect for relational data (users, bids, products).
+
+React.js → For SPA with component-based UI.
+
+Multer → Efficient file upload handling (product images).
+
+express-session → Simple and secure cookie-based user authentication.
+
+node-cron → Auto-processing auction results every minute.
+
+bcrypt → Secure password hashing.
+
+✅ 3. How does the bidding process work in your project?
+
+Answer:
+When a user places a bid:
+
+Backend receives product_id, bid_amount, and user_id.
+
+It checks if bid_amount > current_price.
+
+Inserts new bid into bids table.
+
+Updates the product’s current_price.
+
+Redirects or sends success response.
+
+This ensures real-time bidding updates and data consistency.
+
+✅ 4. How did you handle authentication?
+
+Answer:
+Using express-session:
+
+When a user logs in successfully, I store userId, userName, and isAdmin in the session.
+
+Session ID is stored in cookie (connect.sid).
+
+All protected routes check req.session.userId.
+
+This prevents unauthorized access to bidding and admin pages.
+
+✅ 5. Why did you use express-session instead of JWT?
+
+Answer:
+For this project:
+
+Session cookies are easier for browser-based login.
+
+They persist across page reloads and are secure.
+
+They automatically expire.
+
+No need to manually store/refresh JWT tokens.
+
+But for mobile APIs or multi-client systems, JWT would be better.
+
+✅ 6. How does the auction closing logic work?
+
+Answer:
+I used node-cron to run a job every minute:
+
+Check all products where auction_end <= NOW() AND winner_id IS NULL.
+
+Get the highest bid from bids table.
+
+Set that user as winner_id in the products table.
+
+Mark product as closed.
+
+This ensures auctions close even if the server restarts.
+
+✅ 7. How did you implement file uploads?
+
+Answer:
+I used multer middleware:
+
+Configured storage to public/uploads.
+
+Allowed only images.
+
+Backend stores the file path in products.image_url.
+
+React + EJS both display the image from server.
+
+✅ 8. How do you prevent duplicate or invalid bids?
+
+Answer:
+
+Backend checks bid_amount > current_price.
+
+Also checks if auction_end has passed.
+
+Also checks if auction already has a winner.
+
+If any condition fails → rejects bid.
+
+✅ 9. Explain your database schema design.
+
+Answer:
+
+users table
+
+stores user info + admin flag
+
+password is hashed
+
+products table
+
+stores products added by admin
+
+includes starting price, current price, image, auction end time
+
+includes winner_id when auction ends
+
+bids table
+
+stores every bid
+
+linked to product and user
+
+Relationships:
+
+users (1) → bids (many)
+
+products (1) → bids (many)
+
+products (1) → winner_id (1 user)
+
+✅ 10. How do you ensure password security?
+
+Answer:
+Using bcrypt:
+
+Hash with salt rounds (10).
+
+Never store plain passwords.
+
+Compare hashed password on login.
+
+✅ 11. Did you use any middleware in Express?
+
+Answer:
+Yes:
+
+body-parser → parse POST forms
+
+express-session → authentication
+
+multer → image uploads
+
+isAuthenticated → custom middleware
+
+isAdmin → checks admin access
+
+✅ 12. How does the React frontend communicate with the backend?
+
+Answer:
+Through REST API calls using Axios.
+
+The React package.json contains:
+
+"proxy": "http://localhost:3000"
+
+
+So:
+
+axios.get("/api/products")
+
+
+Automatically directs to:
+
+http://localhost:3000/api/products
+
+✅ 13. How do you handle authorization (admin vs user)?
+
+Answer:
+Inside session:
+
+req.session.isAdmin = true/false
+
+
+Routes like /admin/* check:
+
+if (!req.session.isAdmin) {
+  return res.status(403).send("Access denied");
+}
+
+
+This prevents normal users from accessing admin pages.
+
+✅ 14. Did you handle SQL Injection?
+
+Answer:
+Yes, using parameterized queries:
+
+pool.query("SELECT * FROM users WHERE email = ?", [email])
+
+
+This prevents injection attacks.
+
+✅ 15. What challenges did you face and how did you solve them?
+
+Good Answer:
+
+Handling image uploads:
+Fixed by configuring multer storage properly.
+
+Cron jobs running multiple times:
+Solved using condition: winner_id IS NULL.
+
+Ensuring real-time updates:
+Used current_price updates and pulled latest product data on bid.
+
+Session mismatch in React:
+Fixed using:
+
+axios.defaults.withCredentials = true;
+
+✅ 16. How did you test your backend APIs?
+
+Answer:
+
+Postman for testing login, signup, bid, and admin routes.
+
+Checked session cookies in Postman.
+
+Verified database updates using MySQL Workbench.
+
+Used browser’s DevTools → Network tab.
+
+✅ 17. Could this project scale to large traffic?
+
+Answer:
+Yes, after improvements:
+
+Use Redis for session storage.
+
+Use Nginx reverse proxy.
+
+Use Socket.io for real realtime bidding.
+
+Use PM2 for clustering.
+
+✅ 18. How did you protect routes from unauthorized access?
+
+Answer:
+Created middlewares:
+
+function requireLogin(req, res, next) {
+  if (!req.session.userId) return res.redirect("/login");
+  next();
+}
+
+function requireAdmin(req, res, next) {
+  if (!req.session.isAdmin) return res.status(403).send("Access denied");
+  next();
+}
+
+
+Used them in routes:
+
+app.use("/admin", requireAdmin);
+
+✅ 19. How does your project handle errors?
+
+Answer:
+
+try/catch in async routes
+
+Custom error messages
+
+Console logging in development
+
+MySQL error checks
+
+Form validation on frontend
+
+✅ 20. Why did you choose MySQL over MongoDB?
+
+Answer:
+
+Bidding system is relational (users, products, bids).
+
+Requires JOINs (bids → users).
+
+Required consistent transactions.
+
+MySQL integrates nicely with Node’s async model.
+
+✅ 21. How do you update the UI after a user places a bid?
+
+React approach:
+
+await placeBid(product_id, amount);
+const updated = await getProductById(product_id);
+setProduct(updated.data.product);
+setBids(updated.data.bids);
+
+
+In EJS: page reload shows updated values.
+
+✅ 22. Explain the role of Multer in detail.
+
+Answer:
+Multer handles multipart/form-data used for file uploads.
+
+Steps:
+
+Admin uploads product image.
+
+Multer saves file to public/uploads.
+
+Backend stores the image path in MySQL.
+
+React/EJS display it using <img src="/uploads/...">.
+
+✅ 23. What security measures did you implement?
+
+Answer:
+
+Password hashing with bcrypt
+
+Session-based authentication
+
+SQL injection prevention
+
+File type filtering in uploads
+
+Backend checks before allowing bids
+
+No client-side trust
+
+Error handling for unauthorized routes
+
+✅ 24. What improvements would you add in future?
+
+Answer:
+
+Add WebSockets for live bidding updates
+
+Add email notifications for winners
+
+Use Redis for production session store
+
+Add pagination for bids/products
+
+Deploy on AWS or Render
+
+✅ 25. What did you personally learn from this project?
+
+Strong Answer:
+
+I learned:
+
+How full-stack systems integrate (React + Node + MySQL)
+
+Structuring Express apps with routes and middleware
+
+Real-world authentication
+
+File upload handling
+
+Cron jobs for background tasks
+
+Database design for real applications
+
+Working with sessions and cookies
+
+Building admin panels
+
+State management inside React components

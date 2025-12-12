@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sign Up</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+
+<body>
+
+  <!-- NAVBAR -->
+  <header class="navbar">
+    <a href="/products" class="nav-item">Home</a>
+    <a href="/login" class="nav-item">Login</a>
+  </header>
+
+  <main class="container">
+
+    <h1>Create an Account</h1>
+
+    <form action="/signup" method="POST" class="admin-form">
+
+      <label>Full Name</label>
+      <input type="text" name="name" required />
+
+      <label>Email</label>
+      <input type="email" name="email" required />
+
+      <label>Password</label>
+      <input type="password" name="password" required />
+
+      <button type="submit" class="admin-btn">Sign Up</button>
+    </form>
+
+    <p>
+      Already have an account?
+      <a href="/login">Login</a>
+    </p>
+
+  </main>
+
+</body>
+</html>

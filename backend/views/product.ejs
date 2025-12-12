@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title><%= product.title %></title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+
+<body>
+
+  <!-- NAVBAR -->
+  <header class="navbar">
+    <a href="/products" class="nav-item">Home</a>
+
+    <% if (!session.userId) { %>
+      <a href="/signup" class="nav-item">Sign Up</a>
+      <a href="/login" class="nav-item">Login</a>
+      <a href="/admin-login" class="nav-item">Admin Login</a>
+    <% } else { %>
+
+      <span class="nav-item">Hello, <strong><%= session.userName %></strong></span>
+      <a href="/user-dashboard" class="nav-item">My Dashboard</a>
+
+      <% if (session.isAdmin) { %>
+        <a href="/admin" class="nav-item">Admin Panel</a>
+      <% } %>
+
+      <a href="/logout" class="nav-item logout-btn">Logout</a>
+    <% } %>
+  </header>
+
+  <main class="container">
+
+    <h1><%= product.title %></h1>
+
+    <div class="product-layout">
+
+      <!-- PRODUCT IMAGE -->
+      <img
+        src="<%= product.image_url ? product.image_url : '/img/placeholder.png' %>"
+        alt="<%= product.title %>"
+        class="product-detail-image"
+      />
+
+      <!-- PRODUCT INFO -->
+      <div class="product-info">
+
+        <p><%= product.description %></p>
+
+        <p class="price-label">
+          Current Price:
+          <strong>₹<%= product.current_price %></strong>
+        </p>
+
+        <% if (product.auction_end) { %>
+          <p class="small-text">
+            Auction Ends On:
+            <strong><%= new Date(product.auction_end).toLocaleString() %></strong>
+          </p>
+        <% } %>
+
+        <% if (product.winner_id) { %>
+          <p class="winner-label">
+            Winner Selected — Auction Closed
+          </p>
+        <% } %>
+
+        <!-- BID FORM (Only if logged in and auction not ended) -->
+        <% if (session.userId && !product.winner_id) { %>
+
+          <% if (!product.auction_end || new Date(product.auction_end).getTime() > Date.now()) { %>
+
+            <form action="/bid" method="POST" class="bid-form">
+              <input type="hidden" name="product_id" value="<%= product.id %>" />
+
+              <label>Enter Your Bid</label>
+              <input
+                type="number"
+                name="bid_amount"
+                step="0.01"
+                required
+                placeholder="Must be greater than current price"
+              />
+
+              <button type="submit" class="bid-btn">Place Bid</button>
+            </form>
+
+          <% } else { %>
+            <p class="error-text">Auction has ended. No more bids allowed.</p>
+          <% } %>
+
+        <% } else if (!session.userId) { %>
+          <p>Please <a href="/login">login</a> to place a bid.</p>
+        <% } %>
+
+      </div>
+    </div>
+
+    <hr />
+
+    <!-- BID HISTORY -->
+    <h2>Bid History</h2>
+
+    <% if (bids.length === 0) { %>
+      <p>No bids yet. Be the first to bid!</p>
+    <% } %>
+
+    <ul class="bid-list">
+      <% bids.forEach(bid => { %>
+        <li class="bid-item">
+          <strong><%= bid.name %></strong>
+          bid ₹<%= bid.bid_amount %>
+          <span class="date">
+            (<%= new Date(bid.created_at).toLocaleString() %>)
+          </span>
+        </li>
+      <% }) %>
+    </ul>
+
+  </main>
+
+</body>
+</html>
